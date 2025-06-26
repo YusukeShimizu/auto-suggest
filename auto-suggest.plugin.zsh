@@ -64,7 +64,7 @@ _auto_suggest_widget() {
 zle -N _auto_suggest_widget
 
 # Auto-completion for suggest command
-if (( $+functions[compdef] )); then
+if [[ -n "${_comps}" ]] && (( $+functions[compdef] )); then
     _suggest_completion() {
         _arguments \
             '1:directory:_directories' \
