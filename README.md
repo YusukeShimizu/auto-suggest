@@ -2,6 +2,8 @@
 
 An AI-powered zsh plugin that suggests next commands based on directory context and command history.
 
+![Sample Usage](./sample.png)
+
 ## Dependencies
 
 - `uv` - Python package manager
