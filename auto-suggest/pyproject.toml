@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "auto-suggest"
+version = "0.1.0"
+description = "Auto-suggest next command based on directory context and command history"
+authors = [{name = "User"}]
+dependencies = [
+    "click>=8.0",
+    "llm>=0.13",
+]
+requires-python = ">=3.8"
+
+[project.scripts]
+auto-suggest = "auto_suggest.main:cli"
+
+[tool.uv]
+dev-dependencies = []
