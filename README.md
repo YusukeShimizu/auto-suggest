@@ -1,99 +1,100 @@
 # Auto-Suggest ZSH Plugin
 
-AIを活用してディレクトリコンテキストとコマンド履歴に基づいて次のコマンドを提案するzshプラグインです。
+An AI-powered zsh plugin that suggests next commands based on directory context and command history.
 
-## 必要な依存関係
+## Dependencies
 
-- `uv` - Python パッケージマネージャー
-- `fzf` - ファジーファインダー
-- `llm` - Simon Willison の LLM CLI ツール
+- `uv` - Python package manager
+- `fzf` - Fuzzy finder
+- `llm` - Simon Willison's LLM CLI tool
 
-## インストール
+## Installation
 
-### Sheldon での使用
+### Using Sheldon
 
 ```toml
-# ~/.config/sheldon/plugins.toml に追加
+# Add to ~/.config/sheldon/plugins.toml
 [plugins.auto-suggest]
 github = "YusukeShimizu/auto-suggest"
 ```
 
-## 使用方法
+## Usage
 
-### 基本的な使用
+### Basic Usage
 
 ```bash
-# 現在のディレクトリでコマンド提案
+# Suggest commands for current directory
 suggest
 
-# 特定のディレクトリでコマンド提案
+# Suggest commands for specific directory
 suggest /path/to/project
 
-# 履歴の件数を指定
+# Specify number of history commands to include
 suggest --history 30
 ```
 
-### 部分入力補完（新機能）
+### Partial Input Completion (New Feature)
 
 ```bash
-# 部分的にコマンドを入力してから補完
-git <Ctrl+G>     # gitコマンドの補完候補を表示
-npm <Ctrl+G>     # npmコマンドの補完候補を表示
-docker <Ctrl+G>  # dockerコマンドの補完候補を表示
+# Type partial command then complete
+git <Ctrl+G>     # Show git command completions
+npm <Ctrl+G>     # Show npm command completions
+docker <Ctrl+G>  # Show docker command completions
 ```
 
-### ショートカット
+### Shortcuts
 
-- `sg` - `suggest` のエイリアス
-- `Ctrl+G` - キーバインドで直接提案を開始（部分入力があれば補完モード）
+- `sg` - Alias for `suggest`
+- `Ctrl+G` - Key binding to start suggestion (completion mode if partial input exists)
 
-### 操作手順
+### Operation Steps
 
-1. **通常の提案**: 空のコマンドラインで `Ctrl+G` を押す
-2. **部分入力補完**: コマンドの一部を入力してから `Ctrl+G` を押す
-3. **fzfで選択**: 矢印キーで候補を選択し `Enter` で確定
-4. **実行**: 選択したコマンドが入力バッファに挿入されるので、必要に応じて編集してから `Enter` で実行
+1. **Normal suggestion**: Press `Ctrl+G` on empty command line
+2. **Partial completion**: Type part of command then press `Ctrl+G`
+3. **Select with fzf**: Use arrow keys to select and press `Enter` to confirm
+4. **Execute**: Selected command is inserted into input buffer, edit if needed then press `Enter` to execute
 
-### 設定
+### Configuration
 
-環境変数で動作をカスタマイズできます：
+Customize behavior with environment variables:
 
 ```bash
-# 履歴の件数（デフォルト: 20）
+# Number of history commands (default: 20)
 export AUTO_SUGGEST_HISTORY_LIMIT=30
 
-# fzf の高さ（デフォルト: 40%）
+# fzf height (default: 40%)
 export AUTO_SUGGEST_FZF_HEIGHT=50%
 ```
 
-## 機能
+## Features
 
-- **コンテキスト認識**: READMEファイルとディレクトリ名を分析
-- **履歴統合**: 最近のzshコマンド履歴を考慮
-- **インタラクティブ選択**: fzfを使用した使いやすいインターフェース
-- **日本語対応**: コマンドの説明が日本語で表示
-- **zsh統合**: 選択したコマンドを直接入力バッファに挿入
+- **Context-aware**: Analyzes README files and directory names
+- **History integration**: Considers recent zsh command history
+- **Interactive selection**: User-friendly interface with fzf
+- **Japanese explanations**: Command descriptions in Japanese
+- **Partial completion**: Complete commands based on partial input
+- **zsh integration**: Directly inserts selected commands into input buffer
 
-## 仕組み
+## How it Works
 
-1. 現在のディレクトリのREADMEファイルを読み取り
-2. zshの履歴から最近のコマンドを取得
-3. LLMを使用してコンテキストに基づいた提案を生成
-4. fzfでインタラクティブに選択
-5. 選択したコマンドをzshの入力バッファに挿入
+1. Reads README files from current directory
+2. Retrieves recent commands from zsh history
+3. Generates context-based suggestions using LLM
+4. Interactive selection with fzf
+5. Inserts selected command into zsh input buffer
 
-## トラブルシューティング
+## Troubleshooting
 
-### エラー: uv not found
+### Error: uv not found
 ```bash
 # macOS
 brew install uv
 
-# その他のプラットフォーム
+# Other platforms
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### エラー: fzf not found
+### Error: fzf not found
 ```bash
 # macOS
 brew install fzf
@@ -102,15 +103,15 @@ brew install fzf
 sudo apt install fzf
 ```
 
-### エラー: llm not found
+### Error: llm not found
 ```bash
-# pipx を使用してインストール
+# Install with pipx
 pipx install llm
 
-# または pip を使用
+# Or with pip
 pip install llm
 ```
 
-## ライセンス
+## License
 
 MIT License
