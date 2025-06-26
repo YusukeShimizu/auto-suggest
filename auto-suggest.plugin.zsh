@@ -63,13 +63,14 @@ _auto_suggest_widget() {
 }
 zle -N _auto_suggest_widget
 
-# Auto-completion for suggest command
-if [[ -n "${_comps}" ]] && (( $+functions[compdef] )); then
-    _suggest_completion() {
-        _arguments \
-            '1:directory:_directories' \
-            '--history[Number of history commands to include]:count:' \
-            '--list-only[Output only command list]'
-    }
-    compdef _suggest_completion suggest
-fi
+# Auto-completion disabled to prevent errors
+# Enable manually if needed by uncommenting:
+# if [[ -n "${_comps}" ]] && (( $+functions[compdef] )); then
+#     _suggest_completion() {
+#         _arguments \
+#             '1:directory:_directories' \
+#             '--history[Number of history commands to include]:count:' \
+#             '--list-only[Output only command list]'
+#     }
+#     compdef _suggest_completion suggest
+# fi
