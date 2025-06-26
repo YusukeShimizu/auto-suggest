@@ -15,7 +15,7 @@ AIを活用してディレクトリコンテキストとコマンド履歴に基
 ```toml
 # ~/.config/sheldon/plugins.toml に追加
 [plugins.auto-suggest]
-github = "bruwbird/auto-suggest"
+github = "YusukeShimizu/auto-suggest"
 ```
 
 ## 使用方法
