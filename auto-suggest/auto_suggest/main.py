@@ -118,44 +118,61 @@ Focus on common development tasks relevant to the current directory and recent c
 def extract_commands_from_suggestions(suggestions: str) -> List[str]:
     """Extract command strings with explanations from LLM suggestions."""
     commands = []
+    seen_commands = set()  # Track seen commands to avoid duplicates
     lines = suggestions.split('\n')
     
     for line in lines:
         line = line.strip()
         if not line:
             continue
-            
-        # Match pattern: `command` - explanation
+        
+        command_entry = None
+        
+        # Priority 1: Match pattern: `command` - explanation
         match = re.search(r'`([^`]+)`\s*-\s*(.+)', line)
         if match:
-            cmd = match.group(1)
-            explanation = match.group(2)
-            commands.append(f"{cmd} → {explanation}")
-            continue
+            cmd = match.group(1).strip()
+            explanation = match.group(2).strip()
+            command_entry = f"{cmd} → {explanation}"
+        
+        # Priority 2: Match numbered lists with backticks: "1. `command` - explanation"
+        elif re.search(r'^\d+\..*`([^`]+)`', line):
+            # Extract everything after the number
+            content_after_num = re.sub(r'^\d+\.[\s*]*\*?\*?', '', line).strip()
             
-        # Match patterns like "1. **`command`**" or "1. `command`"
-        match = re.search(r'\d+\.[\s*]*\*?\*?`([^`]+)`', line)
-        if match:
-            commands.append(match.group(1))
-            continue
+            # Try to extract command and explanation
+            backtick_match = re.search(r'`([^`]+)`(?:\s*-\s*(.+))?', content_after_num)
+            if backtick_match:
+                cmd = backtick_match.group(1).strip()
+                explanation = backtick_match.group(2)
+                if explanation:
+                    command_entry = f"{cmd} → {explanation.strip()}"
+                else:
+                    command_entry = cmd
+        
+        # Priority 3: Match simple numbered lists: "1. command - explanation"
+        elif re.match(r'^\d+\.[\s]*([^\s].*)', line):
+            content_after_num = re.sub(r'^\d+\.[\s]*', '', line).strip()
+            content_after_num = re.sub(r'\*\*|\*', '', content_after_num)  # Remove markdown
             
-        # Also try to match simple numbered lists
-        if re.match(r'^\d+\.[\s]*([^\s].*)', line):
-            # Extract text after number and period, remove markdown formatting
-            cmd_text = re.sub(r'^\d+\.[\s]*', '', line)
-            cmd_text = re.sub(r'\*\*|\*', '', cmd_text)
-            if cmd_text and not cmd_text.startswith('Error:'):
-                # Try to extract just the command part (before explanation)
-                cmd_match = re.match(r'^`?([^`\s]+(?:\s+[^`\s]+)*?)`?(?:\s*-\s*(.+))?', cmd_text)
-                if cmd_match:
-                    cmd = cmd_match.group(1)
-                    explanation = cmd_match.group(2)
-                    if explanation:
-                        commands.append(f"{cmd} → {explanation}")
-                    else:
-                        commands.append(cmd)
-                elif len(cmd_text.split()) <= 4:  # Simple commands
-                    commands.append(cmd_text)
+            if content_after_num and not content_after_num.startswith('Error:'):
+                # Try to split on " - " to separate command and explanation
+                if ' - ' in content_after_num:
+                    parts = content_after_num.split(' - ', 1)
+                    cmd = parts[0].strip()
+                    explanation = parts[1].strip()
+                    command_entry = f"{cmd} → {explanation}"
+                else:
+                    # No explanation separator found, treat whole thing as command
+                    command_entry = content_after_num
+        
+        # Add to results if we found something and haven't seen it before
+        if command_entry:
+            # Extract just the command part for duplicate checking
+            cmd_for_dedup = command_entry.split(' → ')[0] if ' → ' in command_entry else command_entry
+            if cmd_for_dedup not in seen_commands:
+                seen_commands.add(cmd_for_dedup)
+                commands.append(command_entry)
     
     return commands
 
