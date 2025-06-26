@@ -13,6 +13,12 @@ AUTO_SUGGEST_FZF_HEIGHT=${AUTO_SUGGEST_FZF_HEIGHT:-40%}
 # Auto-suggest function that puts selected command in input buffer
 suggest() {
     local python_script="$AUTO_SUGGEST_PLUGIN_DIR/auto-suggest/auto_suggest/main.py"
+    local partial_input=""
+    
+    # Get current input from buffer if available
+    if [[ -n "${BUFFER}" ]]; then
+        partial_input="$BUFFER"
+    fi
     
     # Check if uv is available
     if ! command -v uv &> /dev/null; then
@@ -33,9 +39,20 @@ suggest() {
         return 1
     fi
     
+    # Build command arguments
+    local cmd_args=(--list-only --history="$AUTO_SUGGEST_HISTORY_LIMIT")
+    if [[ -n "$partial_input" ]]; then
+        cmd_args+=(--partial="$partial_input")
+    fi
+    
     # Get command list and use fzf for selection
     local selected_cmd
-    selected_cmd=$(uv run "$python_script" --list-only --history="$AUTO_SUGGEST_HISTORY_LIMIT" "$@" 2>/dev/null | fzf --prompt="Select command: " --height="$AUTO_SUGGEST_FZF_HEIGHT" --preview-window=wrap)
+    local fzf_prompt="Select command: "
+    if [[ -n "$partial_input" ]]; then
+        fzf_prompt="Complete '$partial_input': "
+    fi
+    
+    selected_cmd=$(uv run "$python_script" "${cmd_args[@]}" "$@" 2>/dev/null | fzf --prompt="$fzf_prompt" --height="$AUTO_SUGGEST_FZF_HEIGHT" --preview-window=wrap)
     
     if [[ -n "$selected_cmd" ]]; then
         echo "Selected: $selected_cmd" >&2

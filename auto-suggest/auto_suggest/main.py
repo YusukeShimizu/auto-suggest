@@ -72,15 +72,30 @@ def build_context(target_dir: Path, history_limit: int) -> str:
     return context
 
 
-def generate_suggestions(context: str) -> Optional[str]:
+def generate_suggestions(context: str, partial_input: str = "") -> Optional[str]:
     """Generate suggestions using llm."""
-    prompt = f"""Based on this project context, suggest 3-5 practical next commands:
+    if partial_input:
+        prompt = f"""Based on this project context and partial input, suggest 3-5 practical command completions:
+
+{context}
+
+Partial input: {partial_input}
+
+For each command completion, provide:
+1. The complete command (starting with or extending the partial input)
+2. A brief explanation of what it does and what will happen when executed (In Japanese)
+
+Format: `command` - Explanation of what this command does and its expected outcome
+
+Focus on completing or extending the partial input "{partial_input}" with relevant commands for the current directory context."""
+    else:
+        prompt = f"""Based on this project context, suggest 3-5 practical next commands:
 
 {context}
 
 For each command, provide:
 1. The exact command
-2. A brief explanation of what it does and what will happen when executed(In Japaneseå)
+2. A brief explanation of what it does and what will happen when executed (In Japanese)
 
 Format: `command` - Explanation of what this command does and its expected outcome
 
@@ -153,6 +168,7 @@ def main():
     parser.add_argument("target_dir", nargs="?", default=".", help="Target directory (default: current directory)")
     parser.add_argument("-c", "--history", type=int, default=20, help="Number of history commands to include")
     parser.add_argument("--list-only", action="store_true", help="Output only command list for shell processing")
+    parser.add_argument("--partial", type=str, help="Partial command input to complete")
     
     args = parser.parse_args()
     target_dir = Path(args.target_dir)
@@ -165,7 +181,7 @@ def main():
         print(f"Analyzing: {target_dir.absolute()}", file=sys.stderr)
     
     context = build_context(target_dir, args.history)
-    suggestions = generate_suggestions(context)
+    suggestions = generate_suggestions(context, args.partial or "")
     
     if not suggestions or suggestions.startswith("Error:"):
         if not args.list_only:
